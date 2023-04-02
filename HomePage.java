@@ -13,6 +13,7 @@ import javax.swing.*;
 
 
 public class HomePage extends JFrame implements ActionListener {
+    int counter;
     JPanel panel,buttonspanel1,artpanel,buttonspanel2;
 
     private  JLabel title,imageLabel;
@@ -21,9 +22,9 @@ public class HomePage extends JFrame implements ActionListener {
 
     String username,ValArtName,ValArtist,ValArtype,ValDimensions,ValRatings,ValAvailability,ValPrice,ValDescriptions;
     private JButton Left,Right,BuyArt,SellArt,Myaccount,AddToCart, AddtoWishList,Mycart,Exit;
-    HomePage(String username) {
+    HomePage(String username,int Counter) {
         super("Digital Art Gallery Home Page");
-        username = this.username;
+        this.username = username;
 
         title = new JLabel("Digital Art Gallery ",SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 20));
@@ -34,12 +35,12 @@ public class HomePage extends JFrame implements ActionListener {
         panel = new JPanel();
         panel.setBounds(10,40,1200,750);
         try {
-        BufferedImage img = ImageIO.read(new File("src/Images/sample.jpeg"));
-        ImageIcon imageIcon = new ImageIcon(img);
+
+        ImageIcon imageIcon = new ImageIcon(ImageIO.read(new File("src/Images/sample.jpeg")));
         Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750,Image.SCALE_SMOOTH);
-        imageLabel = new JLabel(imageIcon);
-            panel.add(imageLabel);
-         }
+        imageLabel = new JLabel(new ImageIcon(scaleImage));
+        panel.add(imageLabel);
+        }
 
         catch (IOException e) {
             e.printStackTrace();
@@ -143,7 +144,7 @@ public class HomePage extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("Sell Art")) {
-            new ArtSubmissionPage(username);
+            new ArtSubmissionPage(username,counter);
             setVisible(false);
         } else if (e.getActionCommand().equals("My Account")) {
 

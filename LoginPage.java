@@ -113,7 +113,7 @@ public class LoginPage extends JFrame implements ActionListener {
             } else if (LoginFunction(username,password)) {
 
                 JOptionPane.showMessageDialog(this, "Login Successful");
-                new HomePage(username);
+                new HomePage(username,1);
                 setVisible(false);
 
             } else{

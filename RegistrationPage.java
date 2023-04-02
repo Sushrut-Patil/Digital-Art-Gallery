@@ -148,6 +148,7 @@ public class RegistrationPage extends JFrame implements ActionListener {
     }
 
 
+
     @Override
     public void actionPerformed(ActionEvent e) {
         String name = NameField.getText();
@@ -166,7 +167,7 @@ public class RegistrationPage extends JFrame implements ActionListener {
             } else if (RegisterFunction(name,email_id,username,password)) {
 
                 JOptionPane.showMessageDialog(this, "Registration successful");
-                new HomePage(username);
+                new HomePage(username,1);
                 setVisible(false);
 
 
