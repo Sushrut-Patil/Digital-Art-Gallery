@@ -1,47 +1,40 @@
-import javax.imageio.ImageIO;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.sql.*;
-import java.text.AttributedCharacterIterator;
-import javax.swing.*;
 
 
 public class HomePage extends JFrame implements ActionListener {
     int counter;
     JPanel panel,buttonspanel1,artpanel,buttonspanel2;
 
-    private  JLabel title,imageLabel;
-    private JLabel ArtName,Artist,Artype,Dimensions,Ratings,Availability,Price,Descriptions;
-    private JLabel VArtName,VArtist,VArtype,VDimensions,VRatings,VAvailability,VPrice,VDescriptions;
+    String username,ValArtID,ValArtName,ValArtist,ValArtype,ValDimensions,ValRatings,ValAvailability,ValPrice,ValDescriptions;
+    private final JButton Left;
+    private final JButton Right;
 
-    String username,ValArtName,ValArtist,ValArtype,ValDimensions,ValRatings,ValAvailability,ValPrice,ValDescriptions;
-    private JButton Left,Right,BuyArt,SellArt,Myaccount,AddToCart, AddtoWishList,Mycart,Exit;
     HomePage(String username,int counter) {
         super("Digital Art Gallery Home Page");
         this.username = username;
         this.counter = counter;
 
-        title = new JLabel("Digital Art Gallery ",SwingConstants.CENTER);
+        JLabel title = new JLabel("Digital Art Gallery ", SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 20));
         title.setForeground(Color.RED);
         title.setBounds(500,0,500,50);
         add(title);
 
+        FetchDetails(counter);
 
         panel = new JPanel();
         panel.setBounds(10,40,1200,750);
-
         try {
         ImageIcon imageIcon = FetchArt(counter);
         Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750,Image.SCALE_SMOOTH);
-        imageLabel = new JLabel(new ImageIcon(scaleImage));
+        JLabel imageLabel = new JLabel(new ImageIcon(scaleImage));
         panel.add(imageLabel);
         }
         catch (IOException e) {
@@ -65,73 +58,87 @@ public class HomePage extends JFrame implements ActionListener {
         Right.setFocusPainted( false );
         add(Right);
 
-        artpanel = new JPanel(new GridLayout(9,2,5,5));
-        artpanel.setBounds(1220,50,300,500);
-        artpanel.setBackground(Color.CYAN);
+        artpanel = new JPanel(new GridLayout(9,2));
+        artpanel.setBounds(1220,50,300,550);
+        artpanel.setBackground(Color.WHITE);
 
-        ArtName = new JLabel(" Art Name :");
-        artpanel.add(ArtName);
-        VArtName = new JLabel(ValArtName);
+        JLabel art_Id = new JLabel(" Art ID :");
+        artpanel.add(art_Id);
+        JLabel VArtID = new JLabel(ValArtID);
+        artpanel.add(VArtID);
+
+        JLabel artName = new JLabel(" Art Name :");
+        artpanel.add(artName);
+        JLabel VArtName = new JLabel(ValArtName);
         artpanel.add(VArtName);
 
-        Artist = new JLabel(" Artist Name :");
-        artpanel.add(Artist);
-        VArtist = new JLabel(ValArtist);
+        JLabel artist = new JLabel(" Artist Name :");
+        artpanel.add(artist);
+        JLabel VArtist = new JLabel(ValArtist);
         artpanel.add(VArtist);
 
-        Artype = new JLabel(" Art-Type :");
-        artpanel.add(Artype);
-        VArtype = new JLabel(ValArtype);
+        JLabel artype = new JLabel(" Art-Type :");
+        artpanel.add(artype);
+        JLabel VArtype = new JLabel(ValArtype);
         artpanel.add(VArtype);
 
-        Dimensions = new JLabel(" Dimensions : ");
-        artpanel.add(Dimensions);
-        VDimensions = new JLabel(ValDimensions);
+        JLabel dimensions = new JLabel(" Dimensions : ");
+        artpanel.add(dimensions);
+        JLabel VDimensions = new JLabel(ValDimensions);
         artpanel.add(VDimensions);
 
-        Ratings = new JLabel(" Ratings: ");
-        artpanel.add(Ratings);
-        VRatings = new JLabel(ValRatings);
+        JLabel ratings = new JLabel(" Ratings: ");
+        artpanel.add(ratings);
+        JLabel VRatings = new JLabel(ValRatings);
         artpanel.add(VRatings);
 
-        Price = new JLabel(" Price : ");
-        artpanel.add(Price);
-        VPrice = new JLabel(ValPrice);
+        JLabel price = new JLabel(" Price : ");
+        artpanel.add(price);
+        JLabel VPrice = new JLabel(ValPrice);
         artpanel.add(VPrice);
 
-        Availability = new JLabel(" Availability : ");
-        artpanel.add(Availability);
-        VAvailability = new JLabel(ValAvailability);
+        JLabel availability = new JLabel(" Availability : ");
+        artpanel.add(availability);
+        JLabel VAvailability = new JLabel(ValAvailability);
+        Font f = VAvailability.getFont();
         artpanel.add(VAvailability);
 
-        Descriptions = new JLabel(" Description : ");
-        artpanel.add(Descriptions);
-        VDescriptions = new JLabel(ValDescriptions);
+        JTextArea descriptions = new JTextArea(" Description : ");
+        descriptions.setOpaque(false);
+        descriptions.setEditable(false);
+        descriptions.setFont(f);
+        artpanel.add(descriptions);
+        JTextArea VDescriptions = new JTextArea(ValDescriptions);
+        VDescriptions.setLineWrap(true);
+        VDescriptions.setWrapStyleWord(true);
+        VDescriptions.setOpaque(false);
+        VDescriptions.setEditable(false);
+        VDescriptions.setFont(f);
         artpanel.add(VDescriptions);
 
 
-        BuyArt = new JButton("Buy This Art");
-        AddToCart = new JButton("Add To Cart");
-        AddtoWishList = new JButton("Add to WishList");
+        JButton buyArt = new JButton("Buy This Art");
+        JButton addToCart = new JButton("Add To Cart");
+        JButton addtoWishList = new JButton("Add to WishList");
         buttonspanel1 = new JPanel(new GridLayout(3,1,10,10));
-        buttonspanel1.add(AddtoWishList);
-        buttonspanel1.add(AddToCart);
-        buttonspanel1.add(BuyArt);
-        buttonspanel1.setBounds(1220,560,300,200);
+        buttonspanel1.add(addtoWishList);
+        buttonspanel1.add(addToCart);
+        buttonspanel1.add(buyArt);
+        buttonspanel1.setBounds(1220,640,300,150);
 
-        Myaccount = new JButton("My Account");
-        Myaccount.addActionListener(this);
-        Mycart = new JButton("My Cart");
-        SellArt = new JButton("Sell Art");
-        SellArt.addActionListener(this);
-        Exit = new JButton("Exit");
-        Exit.addActionListener(this);
+        JButton myaccount = new JButton("My Account");
+        myaccount.addActionListener(this);
+        JButton mycart = new JButton("My Cart");
+        JButton sellArt = new JButton("Sell Art");
+        sellArt.addActionListener(this);
+        JButton exit = new JButton("Exit");
+        exit.addActionListener(this);
 
         buttonspanel2 = new JPanel(new GridLayout(1,4,30,0));
-        buttonspanel2.add(Myaccount);
-        buttonspanel2.add(Mycart);
-        buttonspanel2.add(SellArt);
-        buttonspanel2.add(Exit);
+        buttonspanel2.add(myaccount);
+        buttonspanel2.add(mycart);
+        buttonspanel2.add(sellArt);
+        buttonspanel2.add(exit);
         buttonspanel2.setBounds(200,800,800,30);
         add(panel);
         add(buttonspanel1);
@@ -156,12 +163,15 @@ public class HomePage extends JFrame implements ActionListener {
 
         } else if (e.getSource()==Right) {
             counter++;
-            setVisible(false);
             new HomePage(username,counter);
+            setVisible(false);
+            //TODO Method so that Counter is in Range of Art_id
+
         } else if (e.getSource()==Left) {
             counter--;
-            setVisible(false);
             new HomePage(username,counter);
+            setVisible(false);
+
 
         }
     }
@@ -170,13 +180,13 @@ public class HomePage extends JFrame implements ActionListener {
     }
     public ImageIcon FetchArt(int counter) throws SQLException, IOException, ClassNotFoundException {
 
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+        Connection connection;
+        PreparedStatement statement;
+        ResultSet resultSet;
         Blob blob = null;
 
         connection = getConnection();
-        String query = "Select image from Art where ?";
+        String query = "Select image from Art where art_id = (?)";
         statement = connection.prepareStatement(query);
         statement.setInt(1, counter);
 
@@ -194,18 +204,27 @@ public class HomePage extends JFrame implements ActionListener {
     public void FetchDetails(int counter) {
 
 
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+        Connection connection;
+        PreparedStatement statement;
+        ResultSet resultSet;
         try {
             connection = getConnection();
-            String sql = " ";
+            String sql = "Select Art_id,Art_Name,Artist_Name,Art_type,Height,Width,Price,Availability,Description,Ratings" +
+                    " from ArtDetails where Art_Id = (?)";
 
             statement = connection.prepareStatement(sql);
-
+            statement.setInt(1, counter);
             resultSet = statement.executeQuery();
             resultSet.next();
-            System.out.println(resultSet.getInt(1));
+            ValArtID = String.valueOf(resultSet.getInt(1));
+            ValArtName = resultSet.getString(2);
+            ValArtist = resultSet.getString(3);
+            ValArtype = resultSet.getString(4);
+            ValDimensions = resultSet.getString(5) + " x " + resultSet.getString(6);
+            ValPrice = String.valueOf(resultSet.getInt(7));
+            ValAvailability = resultSet.getString(8);
+            ValDescriptions = resultSet.getString(9);
+            ValRatings = String.valueOf(resultSet.getInt(10));
 
             resultSet.close();
             statement.close();

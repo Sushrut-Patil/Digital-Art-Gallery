@@ -4,8 +4,9 @@ public class Main {
 
     public static void main(String[] args) {
         String username = "Admin1";
-        new HomePage(username,5);
+        int counter = 101;
+        new HomePage(username,counter);
 //        new LoginPage();
-//        new ArtSubmissionPage(username,4);
+//        new ArtSubmissionPage(username,100);
     }
     }
