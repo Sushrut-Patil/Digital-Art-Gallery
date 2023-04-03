@@ -117,6 +117,7 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         JLabel descriptions = new JLabel(" Description : ");
         submissionpanel.add(descriptions);
         DescriptionsField = new JTextArea();
+        DescriptionsField.setLineWrap(true);
         submissionpanel.add(DescriptionsField);
         add(submissionpanel);
 
