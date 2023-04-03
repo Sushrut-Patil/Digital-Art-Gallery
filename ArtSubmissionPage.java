@@ -15,7 +15,8 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
 
     private final JTextArea DescriptionsField;
     private final JComboBox<String> ArttypeField;
-    private final JPanel ImagePreviewPanel;
+    JPanel ImagePreviewPanel = new JPanel();
+
     private File SelectedFile;
     private final String username;
     public ArtSubmissionPage(String username,int counter) {
@@ -37,21 +38,11 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         pagetitle.setBounds(185,100,250,50);
         add(pagetitle);
 
-        JLabel imageChooseLabel = new JLabel("Image Chooser", SwingConstants.CENTER);
-        imageChooseLabel.setFont(new Font("Verdana", Font.PLAIN, 20));
-        imageChooseLabel.setForeground(Color.BLACK);
-        imageChooseLabel.setBounds(950,10,200,50);
-        add(imageChooseLabel);
-
         JLabel imagePreviewLabel = new JLabel("Image Preview", SwingConstants.CENTER);
         imagePreviewLabel.setFont(new Font("Verdana", Font.PLAIN, 20));
         imagePreviewLabel.setForeground(Color.BLACK);
-        imagePreviewLabel.setBounds(950,330,200,50);
+        imagePreviewLabel.setBounds(950,10,200,50);
         add(imagePreviewLabel);
-
-        ImagePreviewPanel = new JPanel();
-        ImagePreviewPanel.setBounds(650,380,800,450);
-        add(ImagePreviewPanel);
 
 
         JButton submitButton = new JButton("Submit");
@@ -73,7 +64,6 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         fileChooser.setBounds(700,50,700,300);
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Images Filter", "jpg", "jpeg","png");
         fileChooser.setFileFilter(filter);
-        add(fileChooser);
 
 
         JPanel submissionpanel = new JPanel(new GridLayout(7, 2, 5, 5));
@@ -121,6 +111,7 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         submissionpanel.add(DescriptionsField);
         add(submissionpanel);
 
+        add(ImagePreviewPanel);
         setLayout(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -128,12 +119,16 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
 
     }
     public void ArtPreview() {
+
         try {
             System.out.println(SelectedFile);
             ImageIcon imageIcon = new ImageIcon(ImageIO.read(SelectedFile));
-            Image scaleImage = imageIcon.getImage().getScaledInstance(800, 450,Image.SCALE_SMOOTH);
-            JLabel imageLabel = new JLabel(new ImageIcon(scaleImage));
-            ImagePreviewPanel.add(imageLabel);
+            Image scaleImage = imageIcon.getImage().getScaledInstance(imageIcon.getIconWidth()/2, imageIcon.getIconHeight()/2,Image.SCALE_SMOOTH);
+
+            ImagePreviewPanel.removeAll();
+            ImagePreviewPanel.add(new JLabel(new ImageIcon(scaleImage)));
+
+            ImagePreviewPanel.setBounds(650,50,imageIcon.getIconWidth()/2,imageIcon.getIconHeight()/2);
             ImagePreviewPanel.revalidate();
             ImagePreviewPanel.repaint();
 
@@ -141,7 +136,8 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
             e.printStackTrace();
         }
 
-
+        revalidate();
+        repaint();
     }
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:mysql://localhost:3306/DigitalArtGallery", "root", "root");
@@ -200,11 +196,10 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
             int Returnval = fileChooser.showOpenDialog(this);
             if(Returnval == JFileChooser.APPROVE_OPTION) {
                 this.SelectedFile = fileChooser.getSelectedFile();
-                System.out.println(SelectedFile);
                 ArtPreview();
             } else if (Returnval == JFileChooser.CANCEL_OPTION) {
-                    //TODO : Working of Cancel button in File Chooser
-                    //TODO : Refreshing Image Viewer Panel
+                    fileChooser.cancelSelection();
+
             }
         } else if(e.getActionCommand().equals("Cancel")) {
             new HomePage(username,counter);
@@ -232,3 +227,7 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         }
     }
 }
+
+
+
+
