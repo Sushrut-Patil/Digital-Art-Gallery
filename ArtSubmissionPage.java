@@ -4,8 +4,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.sql.*;
 
 public class ArtSubmissionPage extends JFrame implements ActionListener {
@@ -155,9 +154,15 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         try {
             connection = getConnection();
 
+
+            ImageIcon icon = new ImageIcon(SelectedFile.getAbsolutePath());
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try(ObjectOutputStream os = new ObjectOutputStream(baos)) {
+                os.writeObject(icon);
+            }
             String sql1 = "Insert Into Art (image) Values (?)";
             statement1 = connection.prepareStatement(sql1);
-            statement1.setString(1,SelectedFile.getAbsolutePath());
+            statement1.setBlob(1, new ByteArrayInputStream(baos.toByteArray()));
 
             String sql2 = "Insert Into ArtDetails " +
                     "(Owner,Art_Name,Artist_name,Art_type,Height,Width,Price,Description) " +
@@ -184,7 +189,7 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
             statement2.close();
             connection.close();
 
-        }catch (SQLException e) {
+        }catch (SQLException | IOException e) {
             e.printStackTrace();
         }
         return submitflag;
@@ -200,6 +205,7 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
                 ArtPreview();
             } else if (Returnval == fileChooser.CANCEL_OPTION) {
                     //TODO : Working of Cancel button in File Chooser
+                    //TODO : Refreshing Image Viewer Panel
             }
         } else if(e.getActionCommand().equals("Cancel")) {
             new HomePage(username,counter);
@@ -213,6 +219,7 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
             String Width = WidthField.getText();
             String Price = PriceField.getText();
             String Description = DescriptionsField.getText();
+
             if (ArtName.isEmpty() || ArtistName.isEmpty() || Height.isEmpty() || Width.isEmpty() || Price.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please enter all fields");
             } else if (ArtSubmission(ArtName,ArtistName,ArtType,Height,Width,Price,Description)) {

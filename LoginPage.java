@@ -16,6 +16,7 @@ public class LoginPage extends JFrame implements ActionListener {
     private  JPasswordField passwordField;
 
     private JButton loginbutton,toregisterpage;
+    int counter = 100;
     public LoginPage() {
 
         super("Login Page");
@@ -113,7 +114,7 @@ public class LoginPage extends JFrame implements ActionListener {
             } else if (LoginFunction(username,password)) {
 
                 JOptionPane.showMessageDialog(this, "Login Successful");
-                new HomePage(username,1);
+                new HomePage(username,counter);
                 setVisible(false);
 
             } else{

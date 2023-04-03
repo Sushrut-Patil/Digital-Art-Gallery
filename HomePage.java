@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.sql.*;
 import java.text.AttributedCharacterIterator;
 import javax.swing.*;
@@ -22,9 +23,10 @@ public class HomePage extends JFrame implements ActionListener {
 
     String username,ValArtName,ValArtist,ValArtype,ValDimensions,ValRatings,ValAvailability,ValPrice,ValDescriptions;
     private JButton Left,Right,BuyArt,SellArt,Myaccount,AddToCart, AddtoWishList,Mycart,Exit;
-    HomePage(String username,int Counter) {
+    HomePage(String username,int counter) {
         super("Digital Art Gallery Home Page");
         this.username = username;
+        this.counter = counter;
 
         title = new JLabel("Digital Art Gallery ",SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 20));
@@ -32,20 +34,23 @@ public class HomePage extends JFrame implements ActionListener {
         title.setBounds(500,0,500,50);
         add(title);
 
+
         panel = new JPanel();
         panel.setBounds(10,40,1200,750);
-        try {
 
-        ImageIcon imageIcon = new ImageIcon(ImageIO.read(new File("src/Images/sample.jpeg")));
+        try {
+        ImageIcon imageIcon = FetchArt(counter);
         Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750,Image.SCALE_SMOOTH);
         imageLabel = new JLabel(new ImageIcon(scaleImage));
         panel.add(imageLabel);
         }
-
         catch (IOException e) {
             e.printStackTrace();
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         Left = new JButton("<<<");
+        Left.addActionListener(this);
         Left.setForeground(Color.BLACK);
         Left.setBounds(10,760,70,31);
         Left.setBorderPainted(false);
@@ -53,6 +58,7 @@ public class HomePage extends JFrame implements ActionListener {
         add(Left);
 
         Right = new JButton(">>>");
+        Right.addActionListener(this);
         Right.setForeground(Color.BLACK);
         Right.setBounds(1140,760,70,31);
         Right.setBorderPainted(false);
@@ -104,9 +110,6 @@ public class HomePage extends JFrame implements ActionListener {
         artpanel.add(VDescriptions);
 
 
-
-
-
         BuyArt = new JButton("Buy This Art");
         AddToCart = new JButton("Add To Cart");
         AddtoWishList = new JButton("Add to WishList");
@@ -151,10 +154,42 @@ public class HomePage extends JFrame implements ActionListener {
         } else if (e.getActionCommand().equals("Exit")) {
             System.exit(0);
 
+        } else if (e.getSource()==Right) {
+            counter++;
+            setVisible(false);
+            new HomePage(username,counter);
+        } else if (e.getSource()==Left) {
+            counter--;
+            setVisible(false);
+            new HomePage(username,counter);
+
         }
     }
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:mysql://localhost:3306/DigitalArtGallery", "root", "root");
+    }
+    public ImageIcon FetchArt(int counter) throws SQLException, IOException, ClassNotFoundException {
+
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        Blob blob = null;
+
+        connection = getConnection();
+        String query = "Select image from Art where ?";
+        statement = connection.prepareStatement(query);
+        statement.setInt(1, counter);
+
+        resultSet = statement.executeQuery();
+
+
+        if (resultSet.next()) {
+            blob = resultSet.getBlob("image");
+        }
+        assert blob != null;
+        try (ObjectInputStream is = new ObjectInputStream(blob.getBinaryStream())) {
+            return (ImageIcon) is.readObject();
+        }
     }
     public void FetchDetails(int counter) {
 
