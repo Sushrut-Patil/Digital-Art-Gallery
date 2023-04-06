@@ -6,20 +6,21 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.sql.*;
+import java.util.Objects;
 
 
+//TODO Adding Action Listener to Remaining buttons
 public class HomePage extends JFrame implements ActionListener {
-    int counter;
+
     JPanel panel,buttonspanel1,artpanel,buttonspanel2;
 
-    String username,ValArtID,ValArtName,ValArtist,ValArtype,ValDimensions,ValRatings,ValAvailability,ValPrice,ValDescriptions;
+    String ValArtID,ValArtName,ValArtist,ValArtype,ValDimensions,ValRatings,ValAvailability,ValPrice,ValDescriptions;
     private final JButton Left;
     private final JButton Right;
 
-    HomePage(String username,int counter) {
+    HomePage() {
         super("Digital Art Gallery Home Page");
-        this.username = username;
-        this.counter = counter;
+
 
         JLabel title = new JLabel("Digital Art Gallery ", SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 20));
@@ -27,13 +28,13 @@ public class HomePage extends JFrame implements ActionListener {
         title.setBounds(500,0,500,50);
         add(title);
 
-        FetchDetails(counter);
+        FetchDetails(Main.getCounter());
 
         panel = new JPanel();
         panel.setBounds(10,40,1200,750);
         try {
-        ImageIcon imageIcon = FetchArt(counter);
-        Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750,Image.SCALE_SMOOTH);
+        ImageIcon imageIcon = FetchArt(Main.getCounter());
+        Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750,Image.SCALE_FAST);
         JLabel imageLabel = new JLabel(new ImageIcon(scaleImage));
         panel.add(imageLabel);
         }
@@ -128,22 +129,25 @@ public class HomePage extends JFrame implements ActionListener {
 
         JButton myaccount = new JButton("My Account");
         myaccount.addActionListener(this);
+        JButton searchArt = new JButton("Search Art");
         JButton mycart = new JButton("My Cart");
         JButton sellArt = new JButton("Sell Art");
         sellArt.addActionListener(this);
         JButton exit = new JButton("Exit");
         exit.addActionListener(this);
 
-        buttonspanel2 = new JPanel(new GridLayout(1,4,30,0));
+        buttonspanel2 = new JPanel(new GridLayout(1,5,30,0));
         buttonspanel2.add(myaccount);
+        buttonspanel2.add(searchArt);
         buttonspanel2.add(mycart);
         buttonspanel2.add(sellArt);
         buttonspanel2.add(exit);
-        buttonspanel2.setBounds(200,800,800,30);
+        buttonspanel2.setBounds(150,800,900,30);
         add(panel);
         add(buttonspanel1);
         add(buttonspanel2);
         add(artpanel);
+
         setLayout(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -154,30 +158,38 @@ public class HomePage extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("Sell Art")) {
-            new ArtSubmissionPage(username,counter);
+            new ArtSubmissionPage();
             setVisible(false);
         } else if (e.getActionCommand().equals("My Account")) {
-
+                new MyAccount();
         } else if (e.getActionCommand().equals("Exit")) {
             System.exit(0);
 
         } else if (e.getSource()==Right) {
-            counter++;
-            new HomePage(username,counter);
-            setVisible(false);
-            //TODO Method so that Counter is in Range of Art_id
-
+            Main.setCounter(Main.getCounter()+1);
+            if (Main.getCounter()>Main.Upper) {
+                Main.setCounter(Main.Lower);
+                new HomePage();
+                setVisible(false);
+            }else {
+                new HomePage();
+                setVisible(false);
+            }
         } else if (e.getSource()==Left) {
-            counter--;
-            new HomePage(username,counter);
-            setVisible(false);
+            Main.setCounter(Main.getCounter()-1);
 
+            if (Main.getCounter()<Main.Lower){
+                Main.setCounter(Main.Upper);
+                new HomePage();
+                setVisible(false);
+            } else {
+                new HomePage();
+                setVisible(false);
+            }
 
         }
     }
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306/DigitalArtGallery", "root", "root");
-    }
+
     public ImageIcon FetchArt(int counter) throws SQLException, IOException, ClassNotFoundException {
 
         Connection connection;
@@ -185,7 +197,7 @@ public class HomePage extends JFrame implements ActionListener {
         ResultSet resultSet;
         Blob blob = null;
 
-        connection = getConnection();
+        connection = Main.getConnection();
         String query = "Select image from Art where art_id = (?)";
         statement = connection.prepareStatement(query);
         statement.setInt(1, counter);
@@ -196,8 +208,8 @@ public class HomePage extends JFrame implements ActionListener {
         if (resultSet.next()) {
             blob = resultSet.getBlob("image");
         }
-        assert blob != null;
-        try (ObjectInputStream is = new ObjectInputStream(blob.getBinaryStream())) {
+
+        try (ObjectInputStream is = new ObjectInputStream(Objects.requireNonNull(blob).getBinaryStream())) {
             return (ImageIcon) is.readObject();
         }
     }
@@ -208,7 +220,7 @@ public class HomePage extends JFrame implements ActionListener {
         PreparedStatement statement;
         ResultSet resultSet;
         try {
-            connection = getConnection();
+            connection = Main.getConnection();
             String sql = "Select Art_id,Art_Name,Artist_Name,Art_type,Height,Width,Price,Availability,Description,Ratings" +
                     " from ArtDetails where Art_Id = (?)";
 

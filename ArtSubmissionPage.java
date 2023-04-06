@@ -6,23 +6,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.sql.*;
+import java.util.Objects;
 
 public class ArtSubmissionPage extends JFrame implements ActionListener {
-    int counter;
+
     private final JButton ImagePreviewbutton;
     private final JFileChooser fileChooser;
-    private final JTextField ArtNameField,ArtistField,HeightField,WidthField,PriceField;
-
+    private final JTextField ArtNameField,ArtistField,PriceField;
     private final JTextArea DescriptionsField;
     private final JComboBox<String> ArttypeField;
-    JPanel ImagePreviewPanel = new JPanel();
+    JPanel ImagePreviewPanel = new JPanel(),HeigthWidthPanel;
 
     private File SelectedFile;
-    private final String username;
-    public ArtSubmissionPage(String username,int counter) {
+    Integer Height=0,Width=0;
+
+    public ArtSubmissionPage() {
         super("Art Submission Page");
-        this.username = username;
-        this.counter = counter;
+
 
         //Main Title
         JLabel title = new JLabel("Digital Art Gallery ", SwingConstants.CENTER);
@@ -66,8 +66,8 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         fileChooser.setFileFilter(filter);
 
 
-        JPanel submissionpanel = new JPanel(new GridLayout(7, 2, 5, 5));
-        submissionpanel.setBounds(100,200,400,400);
+        JPanel submissionpanel = new JPanel(new GridLayout(5, 2, 5, 5));
+        submissionpanel.setBounds(100,200,400,300);
         submissionpanel.setBackground(Color.YELLOW);
 
         JLabel artName = new JLabel(" Art Name :");
@@ -82,20 +82,10 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
 
         JLabel artype = new JLabel(" Art-Type :");
         submissionpanel.add(artype);
-        String[] listarttype = { "Painting", "AI-Art", "Photography", "Sketch", "Pixel Art","Photo Painting", "Others" };
+        String[] listarttype = { "Painting", "AI-Art", "Photography", "Sketch", "Sculptor","Photo Painting","Digital Art", "Others" };
         ArttypeField = new JComboBox<>(listarttype);
 
         submissionpanel.add(ArttypeField);
-
-        JLabel height = new JLabel(" Height : ");
-        submissionpanel.add(height);
-        HeightField = new JTextField();
-        submissionpanel.add(HeightField);
-
-        JLabel width = new JLabel(" Width : ");
-        submissionpanel.add(width);
-        WidthField = new JTextField();
-        submissionpanel.add(WidthField);
 
 
         JLabel price = new JLabel(" Price : ");
@@ -111,6 +101,13 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         submissionpanel.add(DescriptionsField);
         add(submissionpanel);
 
+        HeigthWidthPanel = new JPanel(new GridLayout(2,2,5,5));
+        HeigthWidthPanel.setBounds(100,500,400,120);
+        HeigthWidthPanel.setBackground(Color.YELLOW);
+        HeightWidth();
+
+
+        add(HeigthWidthPanel);
         add(ImagePreviewPanel);
         setLayout(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -118,26 +115,42 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         setVisible(true);
 
     }
+    public void HeightWidth() {
+        HeigthWidthPanel.removeAll();
+        JLabel height = new JLabel(" Height : ");
+        HeigthWidthPanel.add(height);
+        JLabel heightLabel = new JLabel(String.valueOf(Height));
+        HeigthWidthPanel.add(heightLabel);
+
+        JLabel width = new JLabel(" Width : ");
+        HeigthWidthPanel.add(width);
+        JLabel widthLabel = new JLabel(String.valueOf(Width));
+        HeigthWidthPanel.add(widthLabel);
+
+        HeigthWidthPanel.revalidate();
+        HeigthWidthPanel.repaint();
+    }
     public void ArtPreview() {
 
+        ImageIcon imageIcon = null;
         try {
             System.out.println(SelectedFile);
-            ImageIcon imageIcon = new ImageIcon(ImageIO.read(SelectedFile));
-            Image scaleImage = imageIcon.getImage().getScaledInstance(imageIcon.getIconWidth()/2, imageIcon.getIconHeight()/2,Image.SCALE_SMOOTH);
+            imageIcon = new ImageIcon(ImageIO.read(SelectedFile));
+            Image scaleImage = imageIcon.getImage().getScaledInstance(imageIcon.getIconWidth() / 2, imageIcon.getIconHeight() / 2, Image.SCALE_SMOOTH);
 
             ImagePreviewPanel.removeAll();
             ImagePreviewPanel.add(new JLabel(new ImageIcon(scaleImage)));
 
-            ImagePreviewPanel.setBounds(650,50,imageIcon.getIconWidth()/2,imageIcon.getIconHeight()/2);
+            ImagePreviewPanel.setBounds(650, 50, imageIcon.getIconWidth() / 2, imageIcon.getIconHeight() / 2);
             ImagePreviewPanel.revalidate();
             ImagePreviewPanel.repaint();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        revalidate();
-        repaint();
+        Height = Objects.requireNonNull(imageIcon).getIconWidth();
+        Width = Objects.requireNonNull(imageIcon).getIconHeight();
+        HeightWidth();
     }
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection("jdbc:mysql://localhost:3306/DigitalArtGallery", "root", "root");
@@ -163,7 +176,7 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
                     "(Owner,Art_Name,Artist_name,Art_type,Height,Width,Price,Description) " +
                     "Values (?,?,?,?,?,?,?,?)";
             statement2 = connection.prepareStatement(sql2);
-            statement2.setString(1,username);
+            statement2.setString(1,Main.getUsername());
             statement2.setString(2,ArtName);
             statement2.setString(3,ArtistName);
             statement2.setString(4,ArtType);
@@ -202,24 +215,23 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
 
             }
         } else if(e.getActionCommand().equals("Cancel")) {
-            new HomePage(username,counter);
+            new HomePage();
             setVisible(false);
-        } else if (e.getActionCommand().equals("Submit")) {
+        } else if (e.getActionCommand().equals("Submit") && SelectedFile!=null) {
 
             String ArtName = ArtNameField.getText();
             String ArtistName = ArtistField.getText();
             String ArtType = (String) ArttypeField.getSelectedItem();
-            Integer Height = Integer.valueOf(HeightField.getText());
-            Integer Width = Integer.valueOf(WidthField.getText());
             Integer Price = Integer.valueOf(PriceField.getText());
             String Description = DescriptionsField.getText();
 
-            if (ArtName.isEmpty() || ArtistName.isEmpty() || Height.equals(0) || Width.equals(0) || Price.equals(0)) {
+            if (ArtName.isEmpty() || ArtistName.isEmpty() || Height.equals(0) || Width.equals(0) || Price.equals(0) || SelectedFile ==null) {
                 JOptionPane.showMessageDialog(this, "Please enter all fields");
             } else if (ArtSubmission(ArtName,ArtistName,ArtType,Height,Width,Price,Description)) {
                 JOptionPane.showMessageDialog(this, "Art Submission successful");
-                new HomePage(username,counter);
-                //TODO Return to Page of Newly Inserted Art
+                Main.ArtCounter();
+                Main.setCounter(Main.Upper);
+                new HomePage();
                 setVisible(false);
             } else {
                 JOptionPane.showMessageDialog(this, "Please Enter Correct Details");

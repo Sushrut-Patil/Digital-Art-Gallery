@@ -10,12 +10,10 @@ import java.sql.*;
 public class RegistrationPage extends JFrame implements ActionListener {
 
     JPanel panel;
-    private final JLabel title,pagetitle,usernameLabel,passwordLabel,nameLabel,emailLabel,confirmpasswordlabel;
 
     private final JTextField NameField, emailField,usernameField;
-    private  JPasswordField passwordField,confirmpasswordField;
-
-    private JButton registerbutton,tologinpage;
+    private final JPasswordField passwordField;
+    private final JPasswordField confirmpasswordField;
 
     public RegistrationPage() {
 
@@ -25,13 +23,13 @@ public class RegistrationPage extends JFrame implements ActionListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        title = new JLabel("Digital Art Gallery ",SwingConstants.CENTER);
+        JLabel title = new JLabel("Digital Art Gallery ", SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 40));
         title.setForeground(Color.RED);
         title.setBounds(500,100,500,100);
         add(title);
 
-        pagetitle = new JLabel("Registration Page",SwingConstants.CENTER);
+        JLabel pagetitle = new JLabel("Registration Page", SwingConstants.CENTER);
         pagetitle.setFont(new Font("Verdana", Font.PLAIN, 20));
         pagetitle.setForeground(Color.BLACK);
         pagetitle.setBounds(650,250,200,50);
@@ -42,39 +40,39 @@ public class RegistrationPage extends JFrame implements ActionListener {
         panel.setOpaque(false);
         add(panel);
 
-        nameLabel = new JLabel("Name :",SwingConstants.CENTER);
+        JLabel nameLabel = new JLabel("Name :", SwingConstants.CENTER);
         panel.add(nameLabel);
         NameField = new JTextField();
         panel.add(NameField);
 
-        emailLabel = new JLabel("Email Id : ",SwingConstants.CENTER);
+        JLabel emailLabel = new JLabel("Email Id : ", SwingConstants.CENTER);
         panel.add(emailLabel);
         emailField = new JTextField();
         panel.add(emailField);
 
-        usernameLabel = new JLabel("Username:",SwingConstants.CENTER);
+        JLabel usernameLabel = new JLabel("Username:", SwingConstants.CENTER);
         panel.add(usernameLabel);
         usernameField = new JTextField();
         panel.add(usernameField);
 
-        passwordLabel = new JLabel("Password :",SwingConstants.CENTER);
+        JLabel passwordLabel = new JLabel("Password :", SwingConstants.CENTER);
         panel.add(passwordLabel);
         passwordField = new JPasswordField();
         panel.add(passwordField);
 
-        confirmpasswordlabel = new JLabel(" Confirmed Password :",SwingConstants.CENTER);
+        JLabel confirmpasswordlabel = new JLabel(" Confirmed Password :", SwingConstants.CENTER);
         panel.add(confirmpasswordlabel);
         confirmpasswordField = new JPasswordField();
         panel.add(confirmpasswordField);
 
-        registerbutton = new JButton("Register");
+        JButton registerbutton = new JButton("Register");
         registerbutton.setBackground(Color.BLUE);
         registerbutton.setForeground(Color.WHITE);
         registerbutton.setBounds(700,600,100,30);
         add(registerbutton);
         registerbutton.addActionListener(this);
 
-        tologinpage = new JButton("Already have Account?Login");
+        JButton tologinpage = new JButton("Already have Account?Login");
         tologinpage.setForeground(Color.BLUE);
         tologinpage.setBounds(650,650,200,30);
         add(tologinpage);
@@ -86,17 +84,13 @@ public class RegistrationPage extends JFrame implements ActionListener {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setVisible(true);
     }
-
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306/DigitalArtGallery", "root", "root");
-    }
     private boolean UsernameCheck(String username) {
         boolean duplicateusername = true;
-        Connection connection = null;
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
+        Connection connection;
+        PreparedStatement statement;
+        ResultSet resultSet;
         try {
-            connection = getConnection();
+            connection = Main.getConnection();
             String sql = "SELECT COUNT(username) FROM users WHERE username = ? ";
 
             statement = connection.prepareStatement(sql);
@@ -104,7 +98,7 @@ public class RegistrationPage extends JFrame implements ActionListener {
 
             resultSet = statement.executeQuery();
             resultSet.next();
-            System.out.println(resultSet.getInt(1));
+
             if (resultSet.getInt(1)==0) {
                 duplicateusername = false;
             }
@@ -120,12 +114,12 @@ public class RegistrationPage extends JFrame implements ActionListener {
     }
     private boolean RegisterFunction(String name,String email_id,String username,String Password) {
         boolean Registerflag = false;
-        Connection connection = null;
-        PreparedStatement statement = null;
-        int num = 0;
+        Connection connection;
+        PreparedStatement statement;
+        int num;
 
         try {
-            connection = getConnection();
+            connection = Main.getConnection();
 
             String sql = "Insert Into Users (name,email,username,password) Values (?,?,?,MD5(?))";
             statement = connection.prepareStatement(sql);
@@ -167,7 +161,9 @@ public class RegistrationPage extends JFrame implements ActionListener {
             } else if (RegisterFunction(name,email_id,username,password)) {
 
                 JOptionPane.showMessageDialog(this, "Registration successful");
-                new HomePage(username,1);
+                Main.setUsername(username);
+                Main.RandomCounter();
+                new HomePage();
                 setVisible(false);
 
 
