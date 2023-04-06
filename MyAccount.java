@@ -1,8 +1,8 @@
 import javax.swing.*;
 
 public class MyAccount extends JFrame {
-    private String Username;
-    public MyAccount(String Username) {
+
+    public MyAccount() {
 
 
         setLayout(null);
