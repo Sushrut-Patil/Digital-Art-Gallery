@@ -34,7 +34,7 @@ public class HomePage extends JFrame implements ActionListener {
         panel.setBounds(10,40,1200,750);
         try {
         ImageIcon imageIcon = FetchArt(Main.getCounter());
-        Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750,Image.SCALE_FAST);
+        Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750,Image.SCALE_SMOOTH);
         JLabel imageLabel = new JLabel(new ImageIcon(scaleImage));
         panel.add(imageLabel);
         }
@@ -130,6 +130,7 @@ public class HomePage extends JFrame implements ActionListener {
         JButton myaccount = new JButton("My Account");
         myaccount.addActionListener(this);
         JButton searchArt = new JButton("Search Art");
+        searchArt.addActionListener(this);
         JButton mycart = new JButton("My Cart");
         JButton sellArt = new JButton("Sell Art");
         sellArt.addActionListener(this);
@@ -162,10 +163,13 @@ public class HomePage extends JFrame implements ActionListener {
             setVisible(false);
         } else if (e.getActionCommand().equals("My Account")) {
                 new MyAccount();
+                setVisible(false);
         } else if (e.getActionCommand().equals("Exit")) {
             System.exit(0);
-
-        } else if (e.getSource()==Right) {
+        } else if(e.getActionCommand().equals("Search Art")) {
+            new SearchArt();
+            setVisible(false);
+        }else if (e.getSource()==Right) {
             Main.setCounter(Main.getCounter()+1);
             if (Main.getCounter()>Main.Upper) {
                 Main.setCounter(Main.Lower);
@@ -186,7 +190,6 @@ public class HomePage extends JFrame implements ActionListener {
                 new HomePage();
                 setVisible(false);
             }
-
         }
     }
 
@@ -203,18 +206,14 @@ public class HomePage extends JFrame implements ActionListener {
         statement.setInt(1, counter);
 
         resultSet = statement.executeQuery();
-
-
         if (resultSet.next()) {
             blob = resultSet.getBlob("image");
         }
-
         try (ObjectInputStream is = new ObjectInputStream(Objects.requireNonNull(blob).getBinaryStream())) {
             return (ImageIcon) is.readObject();
         }
     }
     public void FetchDetails(int counter) {
-
 
         Connection connection;
         PreparedStatement statement;

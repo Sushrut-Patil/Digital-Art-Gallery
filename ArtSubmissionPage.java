@@ -162,7 +162,6 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         try {
             connection = getConnection();
 
-
             ImageIcon icon = new ImageIcon(SelectedFile.getAbsolutePath());
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try(ObjectOutputStream os = new ObjectOutputStream(baos)) {
