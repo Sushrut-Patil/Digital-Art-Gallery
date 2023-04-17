@@ -120,7 +120,7 @@ public class LoginPage extends JFrame implements ActionListener {
                 Main.setUsername(username);
                 Main.RandomCounter();
                 new HomePage();
-                setVisible(false);
+                dispose();
 
             } else{
                 JOptionPane.showMessageDialog(this, "Please Enter correct Password or Username");
@@ -128,7 +128,7 @@ public class LoginPage extends JFrame implements ActionListener {
             }
         else if (e.getActionCommand().equals("Don't have Account?Create One!!")) {
                     new RegistrationPage();
-                    setVisible(false);
+                    dispose();
 
         }
 

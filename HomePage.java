@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,11 +11,10 @@ import java.util.Objects;
 //TODO Adding Action Listener to Remaining buttons
 public class HomePage extends JFrame implements ActionListener {
 
-    JPanel panel,buttonspanel1,artpanel,buttonspanel2;
-
-    String ValArtID,ValArtName,ValArtist,ValArtype,ValDimensions,ValRatings,ValAvailability,ValPrice,ValDescriptions;
     private final JButton Left;
     private final JButton Right;
+    JPanel panel, buttonspanel1, artpanel, buttonspanel2;
+    String ValArtID, ValArtName, ValArtist, ValArtype, ValDimensions, ValRatings, ValAvailability, ValPrice, ValDescriptions;
 
     HomePage() {
         super("Digital Art Gallery Home Page");
@@ -25,20 +23,19 @@ public class HomePage extends JFrame implements ActionListener {
         JLabel title = new JLabel("Digital Art Gallery ", SwingConstants.CENTER);
         title.setFont(new Font("Verdana", Font.BOLD, 20));
         title.setForeground(Color.RED);
-        title.setBounds(500,0,500,50);
+        title.setBounds(500, 0, 500, 50);
         add(title);
 
         FetchDetails(Main.getCounter());
 
         panel = new JPanel();
-        panel.setBounds(10,40,1200,750);
+        panel.setBounds(10, 40, 1200, 750);
         try {
-        ImageIcon imageIcon = FetchArt(Main.getCounter());
-        Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750,Image.SCALE_SMOOTH);
-        JLabel imageLabel = new JLabel(new ImageIcon(scaleImage));
-        panel.add(imageLabel);
-        }
-        catch (IOException e) {
+            ImageIcon imageIcon = FetchArt(Main.getCounter());
+            Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750, Image.SCALE_SMOOTH);
+            JLabel imageLabel = new JLabel(new ImageIcon(scaleImage));
+            panel.add(imageLabel);
+        } catch (IOException e) {
             e.printStackTrace();
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -46,21 +43,21 @@ public class HomePage extends JFrame implements ActionListener {
         Left = new JButton("<<<");
         Left.addActionListener(this);
         Left.setForeground(Color.BLACK);
-        Left.setBounds(10,760,70,31);
+        Left.setBounds(10, 760, 70, 31);
         Left.setBorderPainted(false);
-        Left.setFocusPainted( false );
+        Left.setFocusPainted(false);
         add(Left);
 
         Right = new JButton(">>>");
         Right.addActionListener(this);
         Right.setForeground(Color.BLACK);
-        Right.setBounds(1140,760,70,31);
+        Right.setBounds(1140, 760, 70, 31);
         Right.setBorderPainted(false);
-        Right.setFocusPainted( false );
+        Right.setFocusPainted(false);
         add(Right);
 
-        artpanel = new JPanel(new GridLayout(9,2));
-        artpanel.setBounds(1220,50,300,550);
+        artpanel = new JPanel(new GridLayout(9, 2));
+        artpanel.setBounds(1220, 50, 300, 550);
         artpanel.setBackground(Color.WHITE);
 
         JLabel art_Id = new JLabel(" Art ID :");
@@ -121,11 +118,11 @@ public class HomePage extends JFrame implements ActionListener {
         JButton buyArt = new JButton("Buy This Art");
         JButton addToCart = new JButton("Add To Cart");
         JButton addtoWishList = new JButton("Add to WishList");
-        buttonspanel1 = new JPanel(new GridLayout(3,1,10,10));
+        buttonspanel1 = new JPanel(new GridLayout(3, 1, 10, 10));
         buttonspanel1.add(addtoWishList);
         buttonspanel1.add(addToCart);
         buttonspanel1.add(buyArt);
-        buttonspanel1.setBounds(1220,640,300,150);
+        buttonspanel1.setBounds(1220, 640, 300, 150);
 
         JButton myaccount = new JButton("My Account");
         myaccount.addActionListener(this);
@@ -137,13 +134,13 @@ public class HomePage extends JFrame implements ActionListener {
         JButton exit = new JButton("Exit");
         exit.addActionListener(this);
 
-        buttonspanel2 = new JPanel(new GridLayout(1,5,30,0));
+        buttonspanel2 = new JPanel(new GridLayout(1, 5, 30, 0));
         buttonspanel2.add(myaccount);
         buttonspanel2.add(searchArt);
         buttonspanel2.add(mycart);
         buttonspanel2.add(sellArt);
         buttonspanel2.add(exit);
-        buttonspanel2.setBounds(150,800,900,30);
+        buttonspanel2.setBounds(150, 800, 900, 30);
         add(panel);
         add(buttonspanel1);
         add(buttonspanel2);
@@ -156,40 +153,35 @@ public class HomePage extends JFrame implements ActionListener {
 
 
     }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("Sell Art")) {
             new ArtSubmissionPage();
-            setVisible(false);
+            dispose();
         } else if (e.getActionCommand().equals("My Account")) {
-                new MyAccount();
-                setVisible(false);
+            new MyAccount();
+            dispose();
         } else if (e.getActionCommand().equals("Exit")) {
             System.exit(0);
-        } else if(e.getActionCommand().equals("Search Art")) {
+        } else if (e.getActionCommand().equals("Search Art")) {
             new SearchArt();
-            setVisible(false);
-        }else if (e.getSource()==Right) {
-            Main.setCounter(Main.getCounter()+1);
-            if (Main.getCounter()>Main.Upper) {
+            dispose();
+        } else if (e.getSource() == Right) {
+            Main.setCounter(Main.getCounter() + 1);
+            if (Main.getCounter() > Main.Upper) {
                 Main.setCounter(Main.Lower);
-                new HomePage();
-                setVisible(false);
-            }else {
-                new HomePage();
-                setVisible(false);
             }
-        } else if (e.getSource()==Left) {
-            Main.setCounter(Main.getCounter()-1);
+            new HomePage();
+            dispose();
+        } else if (e.getSource() == Left) {
+            Main.setCounter(Main.getCounter() - 1);
 
-            if (Main.getCounter()<Main.Lower){
+            if (Main.getCounter() < Main.Lower) {
                 Main.setCounter(Main.Upper);
-                new HomePage();
-                setVisible(false);
-            } else {
-                new HomePage();
-                setVisible(false);
             }
+            new HomePage();
+            dispose();
         }
     }
 
@@ -213,6 +205,7 @@ public class HomePage extends JFrame implements ActionListener {
             return (ImageIcon) is.readObject();
         }
     }
+
     public void FetchDetails(int counter) {
 
         Connection connection;
@@ -240,8 +233,7 @@ public class HomePage extends JFrame implements ActionListener {
             resultSet.close();
             statement.close();
             connection.close();
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
 

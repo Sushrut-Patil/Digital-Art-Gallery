@@ -215,7 +215,7 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
             }
         } else if(e.getActionCommand().equals("Cancel")) {
             new HomePage();
-            setVisible(false);
+            dispose();
         } else if (e.getActionCommand().equals("Submit") && SelectedFile!=null) {
 
             String ArtName = ArtNameField.getText();
@@ -225,13 +225,17 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
             String Description = DescriptionsField.getText();
 
             if (ArtName.isEmpty() || ArtistName.isEmpty() || Height.equals(0) || Width.equals(0) || Price.equals(0) || SelectedFile ==null) {
+
                 JOptionPane.showMessageDialog(this, "Please enter all fields");
+
             } else if (ArtSubmission(ArtName,ArtistName,ArtType,Height,Width,Price,Description)) {
+
                 JOptionPane.showMessageDialog(this, "Art Submission successful");
                 Main.ArtCounter();
                 Main.setCounter(Main.Upper);
                 new HomePage();
-                setVisible(false);
+                dispose();
+
             } else {
                 JOptionPane.showMessageDialog(this, "Please Enter Correct Details");
             }

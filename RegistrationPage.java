@@ -164,14 +164,14 @@ public class RegistrationPage extends JFrame implements ActionListener {
                 Main.setUsername(username);
                 Main.RandomCounter();
                 new HomePage();
-                setVisible(false);
+                dispose();
 
 
 
             }
         } else if (e.getActionCommand().equals("Already have Account?Login")) {
                     new LoginPage();
-                    setVisible(false);
+                    dispose();
 
         }
     }

@@ -60,8 +60,9 @@ public class Main {
     public static void main(String[] args) {
             RandomCounter();
 //        new LoginPage();
-        setUsername("Admin1");
-        new SearchArt();
-//        new ArtSubmissionPage();
+        setUsername("Sush");
+//        new SearchArt();
+        new ArtSubmissionPage();
+
     }
 }

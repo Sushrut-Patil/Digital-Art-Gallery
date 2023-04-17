@@ -174,7 +174,7 @@ public class MyAccount extends BaseFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(logout)) {
-            int choice = JOptionPane.showConfirmDialog(null, "Do you want LogOut?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            int choice = JOptionPane.showConfirmDialog(this, "Do you want LogOut?", "Confirmation", JOptionPane.YES_NO_OPTION);
             if (choice == JOptionPane.YES_OPTION) {
                 new LoginPage();
                 dispose();
