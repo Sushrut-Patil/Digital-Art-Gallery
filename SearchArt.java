@@ -1,34 +1,41 @@
-import javax.management.Query;
+import Utils.BaseFrame;
+import Utils.CustomButtons;
+import Utils.MainTitle;
+import Utils.PageTitles;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.*;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.EventListener;
 
 
-public class SearchArt extends JFrame implements ActionListener {
+public class SearchArt extends BaseFrame implements ActionListener {
 
-    private final JRadioButton PriceLabel,AvailabilityLabel,ArtTypeLabel,HeightLabel,WidthLabel,YesButton,NoButton;
     private final JSlider PriceSlider,HeightSlider,WidthSlider;
-    private JComboBox<String> Art_TypesBox;
+    private final JComboBox<String> Art_TypesBox;
+    private final JButton ImagePreviewbutton;
+    private final ButtonGroup FilterGroup;
+    private final ButtonGroup Availability;
     JTable Table;
-    private ButtonGroup FilterGroup;
+    JButton search,cancelbutton;
+    JPanel ImagePanel;
+    JScrollPane TableContainer;
 
     public SearchArt() {
-        super("Search Art Page");
+        super("Art Search Page");
 
-        JLabel title = new JLabel("Digital Art Gallery ", SwingConstants.CENTER);
-        title.setFont(new Font("Verdana", Font.BOLD, 40));
-        title.setForeground(Color.RED);
+        JLabel title = new MainTitle();
         title.setBounds(0,10,500,100);
         add(title);
 
         //Page Title
-        JLabel pagetitle = new JLabel("Art Search Page", SwingConstants.CENTER);
-        pagetitle.setFont(new Font("Verdana", Font.PLAIN, 20));
-        pagetitle.setForeground(Color.BLACK);
+        JLabel pagetitle = new PageTitles("Art Search Page");
         pagetitle.setBounds(125,100,250,50);
         add(pagetitle);
 
@@ -39,13 +46,13 @@ public class SearchArt extends JFrame implements ActionListener {
 
         FilterGroup = new ButtonGroup();
 
-        PriceLabel = new JRadioButton("Select Price");
-        ArtFilter.add(PriceLabel);
-        PriceLabel.setActionCommand("Price");
-        FilterGroup.add(PriceLabel);
-        PriceLabel.setSelected(true);
+        JRadioButton priceLabel = new JRadioButton("Select Price");
+        ArtFilter.add(priceLabel);
+        priceLabel.setActionCommand("Price");
+        FilterGroup.add(priceLabel);
+        priceLabel.setSelected(true);
 
-        PriceSlider = new JSlider(0,100,10);
+        PriceSlider = new JSlider(0,100,50);
         PriceSlider.setPaintTrack(true);
         PriceSlider.setPaintTicks(true);
         PriceSlider.setPaintLabels(true);
@@ -53,25 +60,25 @@ public class SearchArt extends JFrame implements ActionListener {
         PriceSlider.setMinorTickSpacing(10);
         ArtFilter.add(PriceSlider);
 
-        ArtTypeLabel = new JRadioButton("Select Art Type");
-        ArtFilter.add(ArtTypeLabel);
-        ArtTypeLabel.setActionCommand("Art_Type");
-        FilterGroup.add(ArtTypeLabel);
+        JRadioButton artTypeLabel = new JRadioButton("Select Art Type");
+        ArtFilter.add(artTypeLabel);
+        artTypeLabel.setActionCommand("Art_Type");
+        FilterGroup.add(artTypeLabel);
 
         String[] listarttype = { "Painting", "AI-Art", "Photography", "Sketch", "Sculptor","Photo Painting","Digital Art", "Others" };
         Art_TypesBox = new JComboBox<>(listarttype);
         ArtFilter.add(Art_TypesBox);
 
         JPanel dimensionsLabel = new JPanel(new GridLayout(2, 1));
-        HeightLabel = new JRadioButton("Height");
-        HeightLabel.setActionCommand("Height");
-        WidthLabel = new JRadioButton("Width");
-        WidthLabel.setActionCommand("Width");
-        dimensionsLabel.add(HeightLabel);
-        dimensionsLabel.add(WidthLabel);
+        JRadioButton heightLabel = new JRadioButton("Height");
+        heightLabel.setActionCommand("Height");
+        JRadioButton widthLabel = new JRadioButton("Width");
+        widthLabel.setActionCommand("Width");
+        dimensionsLabel.add(heightLabel);
+        dimensionsLabel.add(widthLabel);
         ArtFilter.add(dimensionsLabel);
-        FilterGroup.add(HeightLabel);
-        FilterGroup.add(WidthLabel);
+        FilterGroup.add(heightLabel);
+        FilterGroup.add(widthLabel);
 
         JPanel dimensionGroup = new JPanel(new GridLayout(2, 1));
         ArtFilter.add(dimensionGroup);
@@ -94,68 +101,98 @@ public class SearchArt extends JFrame implements ActionListener {
         dimensionGroup.add(WidthSlider);
 
 
-        AvailabilityLabel = new JRadioButton("Select Availability");
-        AvailabilityLabel.setActionCommand("Availability");
-        ArtFilter.add(AvailabilityLabel);
-        FilterGroup.add(AvailabilityLabel);
-        YesButton = new JRadioButton("Yes");
-        NoButton = new JRadioButton("No");
+        JRadioButton availabilityLabel = new JRadioButton("Select Availability");
+        availabilityLabel.setActionCommand("Availability");
+        ArtFilter.add(availabilityLabel);
+        FilterGroup.add(availabilityLabel);
 
-        ButtonGroup Availability = new ButtonGroup();
-        Availability.add(YesButton);
-        Availability.add(NoButton);
+        JRadioButton yesButton = new JRadioButton("Yes");
+        yesButton.setSelected(true);
+        yesButton.setActionCommand("YES");
+        JRadioButton noButton = new JRadioButton("No");
+        noButton.setActionCommand("NO");
+
+        Availability = new ButtonGroup();
+        Availability.add(yesButton);
+        Availability.add(noButton);
+
         JPanel Buttons = new JPanel(new GridLayout(1,2));
-        Buttons.add(YesButton);
-        Buttons.add(NoButton);
+        Buttons.add(yesButton);
+        Buttons.add(noButton);
         ArtFilter.add(Buttons);
 
-        JButton search = new JButton("Search");
+        search = new CustomButtons("Search",Color.blue);
         search.addActionListener(this);
         search.setBounds(80,720,100,30);
         add(search);
 
-        JButton cancelbutton = new JButton("Cancel");
+        cancelbutton = new CustomButtons("Cancel",Color.red);
         cancelbutton.addActionListener(this);
         cancelbutton.setBounds(240,720,100,30);
         add(cancelbutton);
 
-        JPanel Panel = new JPanel(new GridLayout(5,5,5,5));
-        Panel.setBounds(500,250,1000,500);
-        Panel.setBackground(Color.cyan);
-        add(Panel);
+        ImagePreviewbutton = new CustomButtons("Image Preview",Color.BLUE);
+        ImagePreviewbutton.addActionListener(this);
+        ImagePreviewbutton.setBounds(900,260,200,30);
+        add(ImagePreviewbutton);
 
-        setLayout(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setVisible(true);
+        ImagePanel = new JPanel();
+        ImagePanel.setBounds(500,300,1000,500);
+        add(ImagePanel);
+        DetailsTable();
 
-
+        revalidate();
+        repaint();
     }
-    public interface ListSelectionListener extends EventListener {
-        
+    public void ViewImage() throws SQLException, IOException, ClassNotFoundException {
+        System.out.println(Table.getSelectedRow());
+        ImagePanel.removeAll();
+        Main.setCounter((Integer) Table.getValueAt(Table.getSelectedRow(),0));
+        ImageIcon imageIcon = StaticMethods.FetchArt(Main.getCounter());
+        Image scaleImage = imageIcon.getImage().getScaledInstance(1000, 500, Image.SCALE_FAST);
+        JLabel imageLabel = new JLabel(new ImageIcon(scaleImage));
+        ImagePanel.add(imageLabel);
+        ImagePanel.revalidate();
+        ImagePanel.repaint();
     }
-    private String QueryGenrator() {
+    //Method to Generate Query based on Selected Filter by User
+    private String QueryGenerator() {
         String sql = "SELECT ART_ID,ART_NAME,ART_TYPE,HEIGHT,WIDTH,PRICE,AVAILABILITY FROM ARTDETAILS WHERE ";
         if (FilterGroup.getSelection().getActionCommand().equals("Price")) {
-            sql += "Price >= " + PriceSlider.getValue();
+            sql += "Price <= " + PriceSlider.getValue();
         } else if (FilterGroup.getSelection().getActionCommand().equals("Art_Type")) {
-            sql += "ART_TYPE = " + Art_TypesBox.getSelectedItem();
+            sql += "ART_TYPE = \"" + Art_TypesBox.getSelectedItem() + "\"";
         } else if (FilterGroup.getSelection().getActionCommand().equals("Height")) {
-            sql += "HEIGHT >= " + PriceSlider.getValue();
+            sql += "HEIGHT <= " + HeightSlider.getValue();
+        } else if (FilterGroup.getSelection().getActionCommand().equals("Width")) {
+                sql += "WIDTH <= " + WidthSlider.getValue();
+        } else if (FilterGroup.getSelection().getActionCommand().equals("Availability")) {
+            sql += "AVAILABILITY = \""+ Availability.getSelection().getActionCommand()+"\"";
         }
         return sql;
     }
+    //Method to Display Details in JTable
     public void DetailsTable()  {
 
+        //Display Searched Art in JTable
         String[] columnNames = {"ART ID", "ART NAME", "ART TYPE", "HEIGHT", "WIDTH", "PRICE", "AVAILABILITY"};
-        JTable Table = new JTable((Object[][]) FetchDetails(QueryGenrator()), columnNames);
+        Table = new JTable((Object[][]) FetchDetails(QueryGenerator()), columnNames);
         Table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        Table.setRowSelectionInterval(1,1);
         Table.setDefaultEditor(Object.class, null);
         Table.doLayout();
         Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        JScrollPane TableContainer = new JScrollPane(Table);
+        TableContainer = new JScrollPane(Table);
         TableContainer.setBounds(500,50,1000,200);
         add(TableContainer);
+    }
+    public void UpdateTable() {
+
+        remove(TableContainer);
+        DetailsTable();
+        revalidate();
+        repaint();
+
     }
     public Object FetchDetails(String sql) {
         Connection connection;
@@ -193,13 +230,23 @@ public class SearchArt extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println(FilterGroup.getSelection().getActionCommand());
-        if (e.getActionCommand().equals("Search")) {
-            DetailsTable();
-            System.out.println();
-        } else if (e.getActionCommand().equals("Cancel")) {
+
+        if (e.getSource()==search) {
+            UpdateTable();
+        } else if (e.getSource()==cancelbutton) {
             new HomePage();
             dispose();
+        } else if (e.getSource()==ImagePreviewbutton) {
+            if (Table.getSelectedRow()!=-1) {
+                try {
+                    ViewImage();
+                } catch (SQLException | IOException | ClassNotFoundException ex) {
+                    throw new RuntimeException(ex);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please Select Art_Id");
+            }
+
         }
     }
 
