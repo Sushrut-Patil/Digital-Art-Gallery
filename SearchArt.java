@@ -144,7 +144,7 @@ public class SearchArt extends BaseFrame implements ActionListener {
         revalidate();
         repaint();
     }
-    public void ViewImage() throws SQLException, IOException, ClassNotFoundException {
+    private void ViewImage() throws SQLException, IOException, ClassNotFoundException {
         System.out.println(Table.getSelectedRow());
         ImagePanel.removeAll();
         Main.setCounter((Integer) Table.getValueAt(Table.getSelectedRow(),0));
