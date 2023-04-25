@@ -1,3 +1,8 @@
+import Utils.CustomButtons;
+import Utils.CustomLabel;
+import Utils.MainTitle;
+import Utils.PageTitles;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -5,7 +10,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Objects;
 
 public class ArtSubmissionPage extends JFrame implements ActionListener {
@@ -16,46 +23,37 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
     private final JTextArea DescriptionsField;
     private final JComboBox<String> ArttypeField;
     JPanel ImagePreviewPanel = new JPanel(),HeigthWidthPanel;
-
-    private File SelectedFile;
     Integer Height=0,Width=0;
+    private File SelectedFile;
 
     public ArtSubmissionPage() {
         super("Art Submission Page");
 
-
         //Main Title
-        JLabel title = new JLabel("Digital Art Gallery ", SwingConstants.CENTER);
-        title.setFont(new Font("Verdana", Font.BOLD, 40));
-        title.setForeground(Color.RED);
+        JLabel title = new MainTitle();
         title.setBounds(50,10,500,100);
         add(title);
 
         //Page Title
-        JLabel pagetitle = new JLabel("Art Submission Page", SwingConstants.CENTER);
-        pagetitle.setFont(new Font("Verdana", Font.PLAIN, 20));
-        pagetitle.setForeground(Color.BLACK);
+        JLabel pagetitle = new PageTitles("Art Submission Page");
         pagetitle.setBounds(185,100,250,50);
         add(pagetitle);
 
-        JLabel imagePreviewLabel = new JLabel("Image Preview", SwingConstants.CENTER);
-        imagePreviewLabel.setFont(new Font("Verdana", Font.PLAIN, 20));
-        imagePreviewLabel.setForeground(Color.BLACK);
+        JLabel imagePreviewLabel = new PageTitles("Image Preview");
         imagePreviewLabel.setBounds(950,10,200,50);
         add(imagePreviewLabel);
 
-
-        JButton submitButton = new JButton("Submit");
+        JButton submitButton = new CustomButtons("Submit",Color.GREEN);
         submitButton.addActionListener(this);
         submitButton.setBounds(100,700,100,30);
         add(submitButton);
 
-        ImagePreviewbutton = new JButton("Image Preview");
+        ImagePreviewbutton = new CustomButtons("Image Preview",Color.BLUE);
         ImagePreviewbutton.addActionListener(this);
-        ImagePreviewbutton.setBounds(240,700,120,30);
+        ImagePreviewbutton.setBounds(230,700,150,30);
         add(ImagePreviewbutton);
 
-        JButton cancelbutton = new JButton("Cancel");
+        JButton cancelbutton = new CustomButtons("Cancel",Color.red);
         cancelbutton.addActionListener(this);
         cancelbutton.setBounds(400,700,100,30);
         add(cancelbutton);
@@ -70,17 +68,17 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         submissionpanel.setBounds(100,200,400,300);
         submissionpanel.setBackground(Color.YELLOW);
 
-        JLabel artName = new JLabel(" Art Name :");
+        JLabel artName = new CustomLabel(" Art Name :");
         submissionpanel.add(artName);
         ArtNameField = new JTextField();
         submissionpanel.add(ArtNameField);
 
-        JLabel artist = new JLabel(" Artist Name :");
+        JLabel artist = new CustomLabel(" Artist Name :");
         submissionpanel.add(artist);
         ArtistField = new JTextField();
         submissionpanel.add(ArtistField);
 
-        JLabel artype = new JLabel(" Art-Type :");
+        JLabel artype = new CustomLabel(" Art-Type :");
         submissionpanel.add(artype);
         String[] listarttype = { "Painting", "AI-Art", "Photography", "Sketch", "Sculptor","Photo Painting","Digital Art", "Others" };
         ArttypeField = new JComboBox<>(listarttype);
@@ -88,13 +86,13 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         submissionpanel.add(ArttypeField);
 
 
-        JLabel price = new JLabel(" Price : ");
+        JLabel price = new CustomLabel(" Price : ");
         submissionpanel.add(price);
         PriceField = new JTextField();
         submissionpanel.add(PriceField);
 
 
-        JLabel descriptions = new JLabel(" Description : ");
+        JLabel descriptions = new CustomLabel(" Description : ");
         submissionpanel.add(descriptions);
         DescriptionsField = new JTextArea();
         DescriptionsField.setLineWrap(true);
@@ -116,15 +114,16 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
 
     }
     public void HeightWidth() {
+
         HeigthWidthPanel.removeAll();
-        JLabel height = new JLabel(" Height : ");
+        JLabel height = new CustomLabel(" Height : ");
         HeigthWidthPanel.add(height);
-        JLabel heightLabel = new JLabel(String.valueOf(Height));
+        JLabel heightLabel = new CustomLabel(String.valueOf(Height));
         HeigthWidthPanel.add(heightLabel);
 
-        JLabel width = new JLabel(" Width : ");
+        JLabel width = new CustomLabel(" Width : ");
         HeigthWidthPanel.add(width);
-        JLabel widthLabel = new JLabel(String.valueOf(Width));
+        JLabel widthLabel = new CustomLabel(String.valueOf(Width));
         HeigthWidthPanel.add(widthLabel);
 
         HeigthWidthPanel.revalidate();
@@ -152,15 +151,12 @@ public class ArtSubmissionPage extends JFrame implements ActionListener {
         Width = Objects.requireNonNull(imageIcon).getIconHeight();
         HeightWidth();
     }
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:mysql://localhost:3306/DigitalArtGallery", "root", "root");
-    }
     public boolean ArtSubmission(String ArtName,String ArtistName,String ArtType,Integer Height,Integer Width,Integer Price,String Description) {
         Connection connection;
         PreparedStatement statement1,statement2;
         int num;
         try {
-            connection = getConnection();
+            connection = Main.getConnection();
 
             ImageIcon icon = new ImageIcon(SelectedFile.getAbsolutePath());
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

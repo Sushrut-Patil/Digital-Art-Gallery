@@ -1,18 +1,25 @@
+import Utils.BaseFrame;
+import Utils.CustomButtons;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.sql.*;
-import java.util.Objects;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 
 //TODO Adding Action Listener to Remaining buttons
-public class HomePage extends JFrame implements ActionListener {
+public class HomePage extends BaseFrame implements ActionListener {
 
     private final JButton Left;
     private final JButton Right;
+    private final JButton mycart;
+    private final JButton buyArt;
+    private final JButton addToCart;
     JPanel panel, buttonspanel1, artpanel, buttonspanel2;
     String ValArtID, ValArtName, ValArtist, ValArtype, ValDimensions, ValRatings, ValAvailability, ValPrice, ValDescriptions;
 
@@ -26,40 +33,72 @@ public class HomePage extends JFrame implements ActionListener {
         title.setBounds(500, 0, 500, 50);
         add(title);
 
-        FetchDetails(Main.getCounter());
+        FetchDetails();
 
         panel = new JPanel();
         panel.setBounds(10, 40, 1200, 750);
-        try {
-            ImageIcon imageIcon = FetchArt(Main.getCounter());
-            Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750, Image.SCALE_SMOOTH);
-            JLabel imageLabel = new JLabel(new ImageIcon(scaleImage));
-            panel.add(imageLabel);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+
+        //To Display Image
+        ViewImage();
+
+
         Left = new JButton("<<<");
         Left.addActionListener(this);
         Left.setForeground(Color.BLACK);
-        Left.setBounds(10, 760, 70, 31);
-        Left.setBorderPainted(false);
-        Left.setFocusPainted(false);
+        Left.setBackground(Color.YELLOW);
+        Left.setBounds(10, 790, 70, 30);
         add(Left);
 
         Right = new JButton(">>>");
         Right.addActionListener(this);
         Right.setForeground(Color.BLACK);
-        Right.setBounds(1140, 760, 70, 31);
-        Right.setBorderPainted(false);
-        Right.setFocusPainted(false);
+        Right.setBackground(Color.YELLOW);
+        Right.setBounds(1140, 790, 70, 30);
         add(Right);
 
         artpanel = new JPanel(new GridLayout(9, 2));
         artpanel.setBounds(1220, 50, 300, 550);
         artpanel.setBackground(Color.WHITE);
+        //To View Details
+        ViewDetails();
 
+        buyArt = new JButton("Buy This Art");
+        buyArt.addActionListener(this);
+        addToCart = new JButton("Add To Cart");
+        addToCart.addActionListener(this);
+        buttonspanel1 = new JPanel(new GridLayout(2, 1, 10, 10));
+        buttonspanel1.add(addToCart);
+        buttonspanel1.add(buyArt);
+        buttonspanel1.setBounds(1270, 640, 200, 100);
+
+        JButton myaccount = new JButton("My Account");
+        myaccount.addActionListener(this);
+        JButton searchArt = new JButton("Search Art");
+        searchArt.addActionListener(this);
+        mycart = new JButton("My Cart");
+        mycart.addActionListener(this);
+
+        JButton sellArt = new JButton("Sell Art");
+        sellArt.addActionListener(this);
+        JButton exit = new CustomButtons("Exit",Color.RED);
+        exit.addActionListener(this);
+
+        buttonspanel2 = new JPanel(new GridLayout(1, 5, 30, 0));
+        buttonspanel2.add(myaccount);
+        buttonspanel2.add(searchArt);
+        buttonspanel2.add(mycart);
+        buttonspanel2.add(sellArt);
+        buttonspanel2.add(exit);
+        buttonspanel2.setBounds(150, 800, 900, 30);
+        add(panel);
+        add(buttonspanel1);
+        add(buttonspanel2);
+        add(artpanel);
+
+    }
+    private void ViewDetails() {
+        FetchDetails();
+        artpanel.removeAll();
         JLabel art_Id = new JLabel(" Art ID :");
         artpanel.add(art_Id);
         JLabel VArtID = new JLabel(ValArtID);
@@ -114,44 +153,22 @@ public class HomePage extends JFrame implements ActionListener {
         VDescriptions.setFont(f);
         artpanel.add(VDescriptions);
 
+        artpanel.revalidate();
+        artpanel.repaint();
+    }
 
-        JButton buyArt = new JButton("Buy This Art");
-        JButton addToCart = new JButton("Add To Cart");
-        JButton addtoWishList = new JButton("Add to WishList");
-        buttonspanel1 = new JPanel(new GridLayout(3, 1, 10, 10));
-        buttonspanel1.add(addtoWishList);
-        buttonspanel1.add(addToCart);
-        buttonspanel1.add(buyArt);
-        buttonspanel1.setBounds(1220, 640, 300, 150);
-
-        JButton myaccount = new JButton("My Account");
-        myaccount.addActionListener(this);
-        JButton searchArt = new JButton("Search Art");
-        searchArt.addActionListener(this);
-        JButton mycart = new JButton("My Cart");
-        JButton sellArt = new JButton("Sell Art");
-        sellArt.addActionListener(this);
-        JButton exit = new JButton("Exit");
-        exit.addActionListener(this);
-
-        buttonspanel2 = new JPanel(new GridLayout(1, 5, 30, 0));
-        buttonspanel2.add(myaccount);
-        buttonspanel2.add(searchArt);
-        buttonspanel2.add(mycart);
-        buttonspanel2.add(sellArt);
-        buttonspanel2.add(exit);
-        buttonspanel2.setBounds(150, 800, 900, 30);
-        add(panel);
-        add(buttonspanel1);
-        add(buttonspanel2);
-        add(artpanel);
-
-        setLayout(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setVisible(true);
-
-
+    private void ViewImage(){
+        panel.removeAll();
+        try {
+            ImageIcon imageIcon = StaticMethods.FetchArt(Main.getCounter());
+            Image scaleImage = imageIcon.getImage().getScaledInstance(1200, 750, Image.SCALE_SMOOTH);
+            JLabel imageLabel = new JLabel(new ImageIcon(scaleImage));
+            panel.add(imageLabel);
+        } catch (SQLException | ClassNotFoundException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        panel.revalidate();
+        panel.repaint();
     }
 
     @Override
@@ -172,42 +189,33 @@ public class HomePage extends JFrame implements ActionListener {
             if (Main.getCounter() > Main.Upper) {
                 Main.setCounter(Main.Lower);
             }
-            new HomePage();
-            dispose();
+            ViewImage();
+            ViewDetails();
+
         } else if (e.getSource() == Left) {
             Main.setCounter(Main.getCounter() - 1);
-
             if (Main.getCounter() < Main.Lower) {
                 Main.setCounter(Main.Upper);
             }
-            new HomePage();
+            ViewImage();
+            ViewDetails();
+
+        } else if (e.getSource()== mycart) {
+            new MyCart();
+            dispose();
+        } else if (e.getSource()==addToCart) {
+            if (SearchArt.AddtoCart(Main.getCounter())) {
+                JOptionPane.showMessageDialog(this, "Added to Cart Successfully");
+            } else {
+                JOptionPane.showMessageDialog(this, "Art Already present in Cart");
+            }
+        } else if (e.getSource()==buyArt) {
+            new BuyArt();
             dispose();
         }
     }
 
-    public ImageIcon FetchArt(int counter) throws SQLException, IOException, ClassNotFoundException {
-
-        Connection connection;
-        PreparedStatement statement;
-        ResultSet resultSet;
-        Blob blob = null;
-
-        connection = Main.getConnection();
-        String query = "Select image from Art where art_id = (?)";
-        statement = connection.prepareStatement(query);
-        statement.setInt(1, counter);
-
-        resultSet = statement.executeQuery();
-        if (resultSet.next()) {
-            blob = resultSet.getBlob("image");
-        }
-        try (ObjectInputStream is = new ObjectInputStream(Objects.requireNonNull(blob).getBinaryStream())) {
-            return (ImageIcon) is.readObject();
-        }
-    }
-
-    public void FetchDetails(int counter) {
-
+    public void FetchDetails() {
         Connection connection;
         PreparedStatement statement;
         ResultSet resultSet;
@@ -217,7 +225,7 @@ public class HomePage extends JFrame implements ActionListener {
                     " from ArtDetails where Art_Id = (?)";
 
             statement = connection.prepareStatement(sql);
-            statement.setInt(1, counter);
+            statement.setInt(1, Main.getCounter());
             resultSet = statement.executeQuery();
             resultSet.next();
             ValArtID = String.valueOf(resultSet.getInt(1));
@@ -236,7 +244,6 @@ public class HomePage extends JFrame implements ActionListener {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
 
     }
 }

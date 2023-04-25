@@ -1,10 +1,7 @@
 import java.sql.*;
-
 public class Main {
-
-
-    static Integer Counter;
-    static String Username;
+    private static Integer Counter;
+    private static String Username;
 
     public static Integer Lower,Upper;
 
@@ -59,10 +56,13 @@ public class Main {
     }
     public static void main(String[] args) {
             RandomCounter();
-//        new LoginPage();
-        setUsername("Sush");
-//        new SearchArt();
-        new ArtSubmissionPage();
+        new LoginPage();
+//        setUsername("Sush");
+//            new BuyArt();
+////        new MyCart();
+////        new SearchArt();
+////        new ArtSubmissionPage();
+
 
     }
 }

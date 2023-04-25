@@ -8,10 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 
@@ -22,6 +19,7 @@ public class SearchArt extends BaseFrame implements ActionListener {
     private final JButton ImagePreviewbutton;
     private final ButtonGroup FilterGroup;
     private final ButtonGroup Availability;
+    private final CustomButtons Addtocartbutton;
     JTable Table;
     JButton search,cancelbutton;
     JPanel ImagePanel;
@@ -133,8 +131,13 @@ public class SearchArt extends BaseFrame implements ActionListener {
 
         ImagePreviewbutton = new CustomButtons("Image Preview",Color.BLUE);
         ImagePreviewbutton.addActionListener(this);
-        ImagePreviewbutton.setBounds(900,260,200,30);
+        ImagePreviewbutton.setBounds(750,260,200,30);
         add(ImagePreviewbutton);
+
+        Addtocartbutton = new CustomButtons("Add to Cart",Color.BLUE);
+        Addtocartbutton.addActionListener(this);
+        Addtocartbutton.setBounds(1050,260,200,30);
+        add(Addtocartbutton);
 
         ImagePanel = new JPanel();
         ImagePanel.setBounds(500,300,1000,500);
@@ -145,7 +148,7 @@ public class SearchArt extends BaseFrame implements ActionListener {
         repaint();
     }
     private void ViewImage() throws SQLException, IOException, ClassNotFoundException {
-        System.out.println(Table.getSelectedRow());
+
         ImagePanel.removeAll();
         Main.setCounter((Integer) Table.getValueAt(Table.getSelectedRow(),0));
         ImageIcon imageIcon = StaticMethods.FetchArt(Main.getCounter());
@@ -178,7 +181,6 @@ public class SearchArt extends BaseFrame implements ActionListener {
         String[] columnNames = {"ART ID", "ART NAME", "ART TYPE", "HEIGHT", "WIDTH", "PRICE", "AVAILABILITY"};
         Table = new JTable((Object[][]) FetchDetails(QueryGenerator()), columnNames);
         Table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        Table.setRowSelectionInterval(1,1);
         Table.setDefaultEditor(Object.class, null);
         Table.doLayout();
         Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -186,13 +188,13 @@ public class SearchArt extends BaseFrame implements ActionListener {
         TableContainer.setBounds(500,50,1000,200);
         add(TableContainer);
     }
-    public void UpdateTable() {
+    private void UpdateTable() {
 
+        Table = null;
         remove(TableContainer);
         DetailsTable();
         revalidate();
         repaint();
-
     }
     public Object FetchDetails(String sql) {
         Connection connection;
@@ -224,8 +226,41 @@ public class SearchArt extends BaseFrame implements ActionListener {
         for (int i = 0; i < dataList.size(); i++) {
             Data[i] = dataList.get(i);
         }
-
         return Data;
+    }
+    public static boolean AddtoCart(int id) {
+        boolean flag = false;
+        Connection connection;
+        PreparedStatement statement,statement1;
+        ResultSet rs;
+        try {
+            connection = Main.getConnection();
+            String sql = "SELECT COUNT(USERNAME) FROM CART WHERE USERNAME = (?) AND ART_ID = (?)";
+            statement = connection.prepareStatement(sql);
+            statement.setString(1,Main.getUsername());
+            statement.setInt(2,id);
+            rs = statement.executeQuery();
+            rs.next();
+            System.out.println(rs.getInt(1));
+            if (rs.getInt(1)==0){
+                String sql2 = "INSERT INTO CART (USERNAME,ART_ID) VALUES (?,?)";
+                statement1 = connection.prepareStatement(sql2);
+                statement1.setString(1,Main.getUsername());
+                statement1.setInt(2,id);
+                int  num = statement1.executeUpdate();
+                if (num!=0) {
+                    flag = true;
+                }
+                statement1.close();
+            }
+            rs.close();
+            statement.close();
+            connection.close();
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return flag;
     }
 
     @Override
@@ -247,9 +282,18 @@ public class SearchArt extends BaseFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Please Select Art_Id");
             }
 
+        } else if (e.getSource()==Addtocartbutton) {
+            if(Table.getSelectedRow()!=-1) {
+
+                if (AddtoCart((Integer) Table.getValueAt(Table.getSelectedRow(),0))){
+                    JOptionPane.showMessageDialog(this, "Added to Cart Successfully");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Art Already present in Cart");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Art Already present in Cart");
+            }
+
         }
     }
-
-
-
 }

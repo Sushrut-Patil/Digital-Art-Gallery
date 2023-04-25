@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
+
 public class MyAccount extends BaseFrame implements ActionListener {
 
     final JButton logout;
@@ -106,10 +108,9 @@ public class MyAccount extends BaseFrame implements ActionListener {
         Table.setFont(new Font("Verdana", Font.PLAIN, 14));
         Table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         Table.setDefaultEditor(Object.class, null);
+        Table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
         Table.doLayout();
-        Table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         JScrollPane TableContainer = new JScrollPane(Table);
-
         TableContainer.setBounds(500, 250, 1000, 300);
         add(TableContainer);
     }
